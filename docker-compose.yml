@@ -12,6 +12,7 @@ services:
     entrypoint: sh ./.docker/entrypoint.sh
     environment:
       DATABASE_URL: postgresql://postgres:root_password@db-portfolio:5432/portfolio?schema=public
+      SECRET_JWT: d41d8cd98f00b204e9800998ecf8427e
     container_name: back-portfolio
     tty: true
     volumes:

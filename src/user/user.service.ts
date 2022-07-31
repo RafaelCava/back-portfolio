@@ -1,37 +1,55 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
-
+import { hashSync } from 'bcrypt';
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async find(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<User | null> {
-    return this.prisma.user.findUnique({
+  ): Promise<any | null> {
+    const user = await this.prisma.user.findUnique({
       where: userWhereUniqueInput,
     });
+    const { password, ...result } = user;
+    return result;
   }
 
-  async findAll(params?: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.UserWhereUniqueInput;
-    where?: Prisma.UserWhereInput;
-    orderBy?: Prisma.UserOrderByWithRelationInput;
-  }): Promise<User[]> {
-    return this.prisma.user.findMany({
-      ...params,
-      include: {
-        messages: true,
+  async findByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findFirst({
+      where: {
+        email,
       },
     });
   }
 
-  async create(data: Prisma.UserCreateInput): Promise<User> {
+  async findAll(): Promise<any[]> {
+    const users = await this.prisma.user.findMany({
+      include: {
+        messages: true,
+      },
+    });
+    return users.map((user) => {
+      const { password, ...result } = user;
+      return result;
+    });
+  }
+
+  async create(data: Prisma.UserCreateInput): Promise<any> {
+    const { password } = data;
+    const hash = hashSync(password, 11);
+    data['password'] = hash;
     return this.prisma.user.create({
       data,
+      select: {
+        name: true,
+        email: true,
+        id: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
 

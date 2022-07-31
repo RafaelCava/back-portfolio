@@ -6,27 +6,30 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get('/')
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<any[]> {
     return await this.userService.findAll();
   }
 
   @Get('/:id')
-  async findOne(@Param('id') id: string): Promise<User> {
+  async findOne(@Param('id') id: string): Promise<any> {
     const user = { id };
     return await this.userService.find(user);
   }
 
   @Post('/')
-  async create(@Body() user: Prisma.UserCreateInput): Promise<User> {
+  async create(@Body() user: Prisma.UserCreateInput): Promise<any> {
     return await this.userService.create(user);
   }
 
