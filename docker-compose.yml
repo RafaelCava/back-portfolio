@@ -19,6 +19,7 @@ services:
     restart: on-failure
     ports:
       - 3000:3000
+      - 5050:5050
     networks:
       - portfolio
     depends_on:
